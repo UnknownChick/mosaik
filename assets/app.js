@@ -1,10 +1,23 @@
 import './stimulus_bootstrap.js';
-/*
- * Welcome to your app's main JavaScript file!
- *
- * This file will be included onto the page via the importmap() Twig function,
- * which should already be in your base.html.twig.
- */
-import './styles/app.css';
+import { Accordion, initIcons, initMyUI } from 'myui';
+import './styles/app.scss';
 
-console.log('This log comes from assets/app.js - welcome to AssetMapper! 🎉');
+const menu = document.querySelector('#sidebar-menu');
+const compactScreen = window.matchMedia('(max-width: 860px)');
+
+if (menu) {
+    menu.open = !compactScreen.matches;
+}
+
+initMyUI({ components: { accordion: { duration: 180 } } });
+initIcons();
+
+if (menu) {
+    const syncMenu = () => {
+        Accordion.getInstance(menu)?.destroy();
+        menu.open = !compactScreen.matches;
+        Accordion.getOrCreate(menu, { duration: 180 });
+    };
+
+    compactScreen.addEventListener('change', syncMenu);
+}
