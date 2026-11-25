@@ -1,0 +1,22 @@
+{
+  "name": "mosaik",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": "^22.22.2 || ^24.11.0 || >=26.0"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "test:assets": "npm run build && node --test tests/frontend/myui.test.js"
+  },
+  "dependencies": {
+    "@hotwired/stimulus": "^3.2.2",
+    "myui": "git+https://github.com/UnknownChick/my-ui.git#beta"
+  },
+  "devDependencies": {
+    "@symfony/reprise": "^1.4.0",
+    "sass": "^1.108.2",
+    "vite": "^8.3.8"
+  }
+}
