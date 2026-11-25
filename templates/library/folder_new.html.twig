@@ -1,0 +1,35 @@
+{% extends 'base.html.twig' %}
+
+{% set back_url = current_folder ? path('app_folder_show', {id: current_folder.id}) : path('app_library') %}
+
+{% block title %}Nouveau dossier{% endblock %}
+{% block breadcrumb %}Nouveau dossier{% endblock %}
+
+{% block body %}
+    <div class="form-page">
+        <a class="back-link" href="{{ back_url }}"><svg class="icon" aria-hidden="true"><use href="#icon-arrow-left"/></svg> Retour à la bibliothèque</a>
+        <div class="form-intro">
+            <span class="form-intro__icon form-intro__icon--folder"><svg class="icon" aria-hidden="true"><use href="#icon-folder"/></svg></span>
+            <p class="eyebrow"><span></span> UN PEU D'ORGANISATION</p>
+            <h1>Nouveau dossier<span class="heading-dot">.</span></h1>
+            <p>Créez un espace pour regrouper vos liens.</p>
+        </div>
+
+        <div class="form-surface">
+            {{ form_start(form, {attr: {class: 'form'}}) }}
+                {% if form.vars.submitted and not form.vars.valid %}
+                    <div class="form-error-summary" role="alert">
+                        <p>Vérifiez les informations ci-dessous.</p>
+                        {{ form_errors(form) }}
+                    </div>
+                {% endif %}
+                {{ form_row(form.name, {row_attr: {class: 'form-field'}}) }}
+                {{ form_row(form.parent, {row_attr: {class: 'form-field'}, help: 'Choisissez un dossier parent pour créer un sous-dossier.'}) }}
+                <div class="form-actions">
+                    <a class="btn btn--sm" href="{{ back_url }}">Annuler</a>
+                    <button class="btn btn--primary btn--sm" type="submit">Créer le dossier <svg class="icon" aria-hidden="true"><use href="#icon-plus"/></svg></button>
+                </div>
+            {{ form_end(form) }}
+        </div>
+    </div>
+{% endblock %}

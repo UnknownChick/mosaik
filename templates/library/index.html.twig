@@ -1,0 +1,106 @@
+{% extends 'base.html.twig' %}
+
+{% set heading = current_folder ? current_folder.name : (view == 'uncategorized' ? 'Sans dossier' : 'Tous les liens') %}
+{% set new_bookmark_url = path('app_bookmark_new', current_folder ? {folder: current_folder.id} : {}) %}
+{% set new_folder_url = path('app_folder_new', current_folder ? {parent: current_folder.id} : {}) %}
+
+{% block title %}{{ heading }}{% endblock %}
+
+{% block body %}
+    <div class="library-page">
+        <header class="page-heading">
+            <p class="eyebrow"><span></span> VOTRE BIBLIOTHÈQUE</p>
+            <h1>{{ heading }}<span class="heading-dot">.</span></h1>
+            <p class="page-heading__description">
+                {% if current_folder %}
+                    Les liens et sous-dossiers rangés ici.
+                {% elseif view == 'uncategorized' %}
+                    Les liens enregistrés sans dossier.
+                {% else %}
+                    Gardez l'essentiel à portée de clic.
+                {% endif %}
+            </p>
+        </header>
+
+        {% if view != 'uncategorized' %}
+            <section class="folders-section" aria-labelledby="folders-heading">
+                <div class="section-heading">
+                    <div>
+                        <p class="section-heading__overline">BIEN RANGÉ</p>
+                        <h2 id="folders-heading">{{ current_folder ? 'Sous-dossiers' : 'Vos dossiers' }}</h2>
+                    </div>
+                    <a class="text-action" href="{{ new_folder_url }}">
+                        <svg class="icon" aria-hidden="true"><use href="#icon-plus"/></svg>
+                        {{ current_folder ? 'Ajouter un sous-dossier' : 'Nouveau dossier' }}
+                    </a>
+                </div>
+
+                {% if children is not empty %}
+                    <div class="folder-grid">
+                        {% for child in children %}
+                            {% set folder_count = counts.folders[child.id]|default(0) %}
+                            <a class="folder-card" href="{{ path('app_folder_show', {id: child.id}) }}">
+                                <span class="folder-card__icon"><svg class="icon" aria-hidden="true"><use href="#icon-folder"/></svg></span>
+                                <span class="folder-card__body">
+                                    <strong>{{ child.name }}</strong>
+                                    <span>{{ folder_count }} lien{{ folder_count > 1 ? 's' : '' }}</span>
+                                </span>
+                                <svg class="icon folder-card__arrow" aria-hidden="true"><use href="#icon-chevron-right"/></svg>
+                            </a>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <a class="folder-placeholder" href="{{ new_folder_url }}">
+                        <span class="folder-placeholder__icon"><svg class="icon" aria-hidden="true"><use href="#icon-plus"/></svg></span>
+                        <span>{{ current_folder ? 'Créer un sous-dossier' : 'Créer votre premier dossier' }}</span>
+                        <span class="folder-placeholder__hint">Pour organiser vos liens à votre façon</span>
+                    </a>
+                {% endif %}
+            </section>
+        {% endif %}
+
+        <section class="bookmarks-section" aria-labelledby="bookmarks-heading">
+            <div class="section-heading section-heading--links">
+                <div>
+                    <p class="section-heading__overline">VOS TROUVAILLES</p>
+                    <h2 id="bookmarks-heading">Liens enregistrés <span class="result-count">{{ bookmarks|length }}</span></h2>
+                </div>
+                {% if bookmarks is not empty %}<span class="sort-label">Les plus récents d'abord</span>{% endif %}
+            </div>
+
+            {% if bookmarks is empty %}
+                <div class="empty-state">
+                    <div class="empty-illustration" aria-hidden="true">
+                        <span class="empty-illustration__tile empty-illustration__tile--back"></span>
+                        <span class="empty-illustration__tile empty-illustration__tile--front"><svg class="icon"><use href="#icon-link"/></svg></span>
+                        <span class="empty-illustration__sparkle">✳</span>
+                    </div>
+                    <h3>{% if current_folder %}Ce dossier est encore vide{% elseif view == 'uncategorized' %}Aucun lien sans dossier{% else %}Tout commence par un lien{% endif %}</h3>
+                    <p>{% if current_folder %}Ajoutez un lien ici pour le retrouver facilement.{% elseif view == 'uncategorized' %}Les liens enregistrés sans dossier apparaîtront ici.{% else %}Un article à lire, une idée à garder ?<br>Enregistrez votre première trouvaille.{% endif %}</p>
+                    <a class="btn btn--primary btn--sm btn--icon" href="{{ new_bookmark_url }}">
+                        <svg class="icon" aria-hidden="true"><use href="#icon-plus"/></svg>
+                        Ajouter un lien
+                    </a>
+                </div>
+            {% else %}
+                <div class="bookmark-list">
+                    {% for bookmark in bookmarks %}
+                        <a class="bookmark-card" href="{{ bookmark.url }}" target="_blank" rel="noopener noreferrer">
+                            <span class="bookmark-card__icon"><svg class="icon" aria-hidden="true"><use href="#icon-link"/></svg></span>
+                            <span class="bookmark-card__content">
+                                <strong>{{ bookmark.title }}</strong>
+                                <span class="bookmark-card__url">{{ bookmark.url }}</span>
+                            </span>
+                            <span class="bookmark-card__meta">
+                                <span class="bookmark-card__folder"><svg class="icon" aria-hidden="true"><use href="#icon-folder"/></svg>{{ bookmark.folder ? bookmark.folder.path : 'Sans dossier' }}</span>
+                                <span>Ajouté le {{ bookmark.createdAt|date('d/m/Y') }}</span>
+                            </span>
+                            <svg class="icon bookmark-card__open" aria-hidden="true"><use href="#icon-arrow-up-right"/></svg>
+                            <span class="sr-only">(s'ouvre dans un nouvel onglet)</span>
+                        </a>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </section>
+    </div>
+{% endblock %}

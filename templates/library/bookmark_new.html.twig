@@ -1,0 +1,36 @@
+{% extends 'base.html.twig' %}
+
+{% set back_url = current_folder ? path('app_folder_show', {id: current_folder.id}) : path('app_library') %}
+
+{% block title %}Ajouter un lien{% endblock %}
+{% block breadcrumb %}Ajouter un lien{% endblock %}
+
+{% block body %}
+    <div class="form-page">
+        <a class="back-link" href="{{ back_url }}"><svg class="icon" aria-hidden="true"><use href="#icon-arrow-left"/></svg> Retour à la bibliothèque</a>
+        <div class="form-intro">
+            <span class="form-intro__icon"><svg class="icon" aria-hidden="true"><use href="#icon-link"/></svg></span>
+            <p class="eyebrow"><span></span> UNE NOUVELLE TROUVAILLE</p>
+            <h1>Ajouter un lien<span class="heading-dot">.</span></h1>
+            <p>Un titre, une adresse et c'est gardé pour plus tard.</p>
+        </div>
+
+        <div class="form-surface">
+            {{ form_start(form, {attr: {class: 'form'}}) }}
+                {% if form.vars.submitted and not form.vars.valid %}
+                    <div class="form-error-summary" role="alert">
+                        <p>Vérifiez les informations ci-dessous.</p>
+                        {{ form_errors(form) }}
+                    </div>
+                {% endif %}
+                {{ form_row(form.url, {row_attr: {class: 'form-field'}, help: 'Une adresse complète commençant par http:// ou https://.'}) }}
+                {{ form_row(form.title, {row_attr: {class: 'form-field'}}) }}
+                {{ form_row(form.folder, {row_attr: {class: 'form-field'}, help: 'Facultatif : choisissez où ranger ce lien.'}) }}
+                <div class="form-actions">
+                    <a class="btn btn--sm" href="{{ back_url }}">Annuler</a>
+                    <button class="btn btn--primary btn--sm" type="submit">Enregistrer le lien <svg class="icon" aria-hidden="true"><use href="#icon-arrow-up-right"/></svg></button>
+                </div>
+            {{ form_end(form) }}
+        </div>
+    </div>
+{% endblock %}

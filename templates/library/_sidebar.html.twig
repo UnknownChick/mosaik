@@ -1,0 +1,62 @@
+{% macro folder_tree(parent_id, folders_by_parent, counts, current_folder, view) %}
+    {% set children = folders_by_parent[parent_id]|default([]) %}
+    {% if children is not empty %}
+        <ul class="folder-tree">
+            {% for folder in children %}
+                <li>
+                    <a class="sidebar-link sidebar-link--folder {{ current_folder and current_folder.id == folder.id ? 'is-active' : '' }}"
+                       href="{{ path('app_folder_show', {id: folder.id}) }}"
+                       {% if view == 'folder' and current_folder and current_folder.id == folder.id %}aria-current="page"{% endif %}>
+                        <svg class="icon" aria-hidden="true"><use href="#icon-folder"/></svg>
+                        <span class="sidebar-link__label">{{ folder.name }}</span>
+                        {% set folder_count = counts.folders[folder.id]|default(0) %}
+                        <span class="sidebar-link__count" aria-label="{{ folder_count }} lien{{ folder_count > 1 ? 's' : '' }}">{{ folder_count }}</span>
+                    </a>
+                    {{ _self.folder_tree(folder.id, folders_by_parent, counts, current_folder, view) }}
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+{% endmacro %}
+
+<aside class="sidebar" aria-label="Navigation principale">
+    <a class="brand" href="{{ path('app_library') }}" aria-label="Mosaik, accueil">
+        <span class="brand__mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+        <span class="brand__name">mosaik<span class="brand__dot">.</span></span>
+    </a>
+
+    <details class="accordion sidebar-menu" id="sidebar-menu" open>
+        <summary class="accordion__title sidebar-menu__toggle">
+            <span><svg class="icon" aria-hidden="true"><use href="#icon-grid"/></svg> Bibliothèque et dossiers</span>
+        </summary>
+        <div class="accordion__content sidebar-menu__content">
+            <nav class="sidebar__navigation" aria-label="Votre bibliothèque">
+                <p class="sidebar__section-label">BIBLIOTHÈQUE</p>
+                <a class="sidebar-link {{ view == 'all' ? 'is-active' : '' }}" href="{{ path('app_library') }}" {% if view == 'all' %}aria-current="page"{% endif %}>
+                    <svg class="icon" aria-hidden="true"><use href="#icon-grid"/></svg>
+                    <span class="sidebar-link__label">Tous les liens</span>
+                    <span class="sidebar-link__count" aria-label="{{ counts.total }} lien{{ counts.total > 1 ? 's' : '' }}">{{ counts.total }}</span>
+                </a>
+                <a class="sidebar-link {{ view == 'uncategorized' ? 'is-active' : '' }}" href="{{ path('app_library_uncategorized') }}" {% if view == 'uncategorized' %}aria-current="page"{% endif %}>
+                    <svg class="icon" aria-hidden="true"><use href="#icon-inbox"/></svg>
+                    <span class="sidebar-link__label">Sans dossier</span>
+                    <span class="sidebar-link__count" aria-label="{{ counts.uncategorized }} lien{{ counts.uncategorized > 1 ? 's' : '' }}">{{ counts.uncategorized }}</span>
+                </a>
+
+                <div class="sidebar__section-heading">
+                    <p class="sidebar__section-label">MES DOSSIERS</p>
+                    <a class="sidebar__add" href="{{ path('app_folder_new', current_folder ? {parent: current_folder.id} : {}) }}" aria-label="Créer un dossier">
+                        <svg class="icon" aria-hidden="true"><use href="#icon-plus"/></svg>
+                    </a>
+                </div>
+                <div class="sidebar__folders">
+                    {% if folders_by_parent[0]|default([]) is empty %}
+                        <p class="sidebar__empty">Vos dossiers apparaîtront ici.</p>
+                    {% else %}
+                        {{ _self.folder_tree(0, folders_by_parent, counts, current_folder, view) }}
+                    {% endif %}
+                </div>
+            </nav>
+        </div>
+    </details>
+</aside>
